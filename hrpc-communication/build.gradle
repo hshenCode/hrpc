@@ -1,0 +1,9 @@
+version '1.0-SNAPSHOT'
+
+dependencies {
+    provided 'io.netty:netty-all'
+    provided 'org.projectlombok:lombok'
+    provided 'com.dyuproject.protostuff:protostuff-core'
+    provided 'com.dyuproject.protostuff:protostuff-runtime'
+    provided 'org.objenesis:objenesis'
+}

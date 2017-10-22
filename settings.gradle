@@ -1,0 +1,6 @@
+rootProject.name = 'hrpc'
+include 'hrpc-server'
+include 'hrpc-client'
+include 'hrpc-registry'
+include 'hrpc-communication'
+

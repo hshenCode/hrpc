@@ -1,0 +1,64 @@
+allprojects {
+    group = 'pw.hshen'
+    version = '1.0-SNAPSHOT'
+
+    apply plugin: 'eclipse'
+    apply plugin: 'idea'
+    apply plugin: 'propdeps'
+    apply plugin: 'propdeps-maven'
+    apply plugin: 'propdeps-idea'
+    apply plugin: 'propdeps-eclipse'
+    apply plugin: 'io.spring.dependency-management'
+    apply plugin: 'nebula.maven-publish'
+
+    repositories {
+        mavenCentral()
+    }
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+        maven { url 'http://repo.spring.io/plugins-release' }
+    }
+    dependencies {
+        classpath 'io.spring.gradle:dependency-management-plugin:1.0.3.RELEASE'
+        classpath 'org.springframework.build.gradle:propdeps-plugin:0.0.7'
+        classpath 'com.netflix.nebula:gradle-info-plugin:3.5.0'
+        classpath 'com.netflix.nebula:nebula-publishing-plugin:5.1.0'
+    }
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'io.spring.dependency-management'
+
+    [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+    [compileJava, compileTestJava]*.sourceCompatibility = '1.8'
+
+    afterEvaluate {
+        dependencyManagement {
+            dependencies {
+                dependency 'io.netty:netty-all:4.0.4.Final'
+                dependency 'org.projectlombok:lombok:1.16.16'
+                dependency 'com.dyuproject.protostuff:protostuff-core:1.0.9'
+                dependency 'com.dyuproject.protostuff:protostuff-runtime:1.0.9'
+                dependency 'org.objenesis:objenesis:2.1'
+                dependency 'org.springframework:spring-context:4.1.5.RELEASE'
+                dependency 'org.slf4j:slf4j-api:1.7.25'
+                dependency 'log4j:log4j:1.2.17'
+                dependency 'com.google.guava:guava:11.0.2'
+                dependency 'org.apache.zookeeper:zookeeper:3.4.0'
+                dependency 'com.101tec:zkclient:0.4'
+            }
+            resolutionStrategy {
+                cacheChangingModulesFor 0, 'seconds'
+            }
+        }
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '3.5'
+}
+

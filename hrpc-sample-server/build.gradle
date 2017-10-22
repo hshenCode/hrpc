@@ -1,0 +1,17 @@
+group 'pw.hshen'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    compile 'org.springframework:spring-context:4.1.5.RELEASE'
+    compile group: 'pw.hshen', name: 'hrpc-registry', version: '1.0-SNAPSHOT'
+    compile group: 'pw.hshen', name: 'hrpc-server', version: '1.0-SNAPSHOT'
+}

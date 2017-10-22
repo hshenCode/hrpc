@@ -1,0 +1,16 @@
+# Intellij
+.idea/
+*.iml
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# Ignore log
+*.log
+
+# gradle
+.gradle/
+build/
+out/

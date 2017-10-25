@@ -10,42 +10,43 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import pw.hshen.hrpc.communication.codec.RPCEncoder;
 import pw.hshen.hrpc.communication.model.RPCRequest;
 import pw.hshen.hrpc.communication.model.RPCResponse;
 import pw.hshen.hrpc.communication.serialization.impl.ProtobufSerializer;
 import pw.hshen.hrpc.registry.ServiceRegistry;
-import pw.hshen.hrpc.server.annotation.RPCService;
+import pw.hshen.hrpc.common.annotation.RPCService;
 import pw.hshen.hrpc.communication.codec.RPCDecoder;
 import pw.hshen.hrpc.server.handler.RPCServerHandler;
 
+import java.lang.annotation.Annotation;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author hongbin
  * Created on 21/10/2017
  */
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Slf4j
 public class RPCServer implements ApplicationContextAware, InitializingBean {
 
+    @NonNull
     private String serviceAddress;
-
-    public RPCServer(String serviceAddress, ServiceRegistry serviceRegistry) {
-        this.serviceAddress = serviceAddress;
-        this.serviceRegistry = serviceRegistry;
-    }
-
+    @NonNull
     private ServiceRegistry serviceRegistry;
 
     /**
@@ -55,17 +56,17 @@ public class RPCServer implements ApplicationContextAware, InitializingBean {
 
     @Override
     public void setApplicationContext(ApplicationContext ctx) throws BeansException {
-        log.debug("Start put handler");
-        // 扫描带有 RPCService 注解的类并初始化 handlerMap 对象
-        Map<String, Object> serviceBeanMap = ctx.getBeansWithAnnotation(RPCService.class);
-        if (!CollectionUtils.isEmpty(serviceBeanMap)) {
-            for (Object serviceBean : serviceBeanMap.values()) {
-                RPCService RPCService = serviceBean.getClass().getAnnotation(RPCService.class);
-                String serviceName = RPCService.value().getName();
-                handlerMap.put(serviceName, serviceBean);
-                log.debug("put handler: {}, {}", serviceName, serviceBean);
-            }
-        }
+        log.info("Start register RPC services");
+
+        getServiceInterfaces(ctx, RPCService.class)
+                .stream()
+                .forEach(interfaceClazz -> {
+                    log.info("RPC service interface {} found.", interfaceClazz.getName());
+                    String serviceName = interfaceClazz.getAnnotation(RPCService.class).value().getName();
+                    Object serviceBean = ctx.getBean(interfaceClazz);
+                    handlerMap.put(serviceName, serviceBean);
+                    log.info("put handler: {}, {}", serviceName, serviceBean);
+                });
     }
 
     @Override
@@ -109,4 +110,15 @@ public class RPCServer implements ApplicationContextAware, InitializingBean {
             bossGroup.shutdownGracefully();
         }
     }
+
+    private List<Class<?>> getServiceInterfaces(ApplicationContext ctx, Class<? extends Annotation> clazz) {
+        return ctx.getBeansWithAnnotation(clazz)
+                .values().stream()
+                .map(AopUtils::getTargetClass)
+                .map(cls -> Arrays.asList(cls.getInterfaces()))
+                .flatMap(List::stream)
+                .filter(cls -> Objects.nonNull(cls.getAnnotation(clazz)))
+                .collect(Collectors.toList());
+    }
+
 }

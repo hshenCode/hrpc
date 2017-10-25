@@ -1,5 +1,6 @@
 package pw.hshen.hrpc.registry.impl.zookeeper;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.I0Itec.zkclient.ZkClient;
 import org.springframework.util.CollectionUtils;
@@ -18,14 +19,15 @@ public class ZKServiceDiscovery implements ServiceDiscovery {
     private String zkAddress;
 
     public ZKServiceDiscovery(String zkAddress) {
+        log.debug("set zkAddress: {}", zkAddress);
         this.zkAddress = zkAddress;
     }
 
     @Override
     public String discover(String name) {
-        // 创建 ZooKeeper 客户端
+        log.debug("connecting to zk: {}", zkAddress);
         ZkClient zkClient = new ZkClient(zkAddress, Constant.ZK_SESSION_TIMEOUT, Constant.ZK_CONNECTION_TIMEOUT);
-        log.debug("connect zookeeper");
+        log.debug("zookeeper connected");
         try {
             // 获取 service 节点
             String servicePath = Constant.ZK_REGISTRY_PATH + "/" + name;

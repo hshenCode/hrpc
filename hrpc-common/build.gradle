@@ -1,0 +1,5 @@
+version '1.0-SNAPSHOT'
+
+dependencies {
+    provided 'org.springframework:spring-context'
+}

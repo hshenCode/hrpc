@@ -1,74 +1,115 @@
 package pw.hshen.hrpc.client;
 
-import lombok.AllArgsConstructor;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.BeanDefinitionHolder;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.BeanDefinitionReaderUtils;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
+import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
+import org.springframework.core.type.AnnotationMetadata;
+import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.util.StringUtils;
-import pw.hshen.hrpc.communication.model.RPCRequest;
-import pw.hshen.hrpc.communication.model.RPCResponse;
 import pw.hshen.hrpc.registry.ServiceDiscovery;
+import pw.hshen.hrpc.common.annotation.RPCService;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.util.UUID;
+import java.lang.annotation.Annotation;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author hongbin
  * Created on 21/10/2017
  */
-@AllArgsConstructor
 @Slf4j
-public class RPCClientProxy {
+@RequiredArgsConstructor
+public class RPCClientProxy implements BeanDefinitionRegistryPostProcessor {
 
+    @NonNull
     private ServiceDiscovery serviceDiscovery;
 
-    @SuppressWarnings("unchecked")
-    public <T> T create(final Class<?> interfaceClass) {
-        // 创建动态代理对象
-        return (T) Proxy.newProxyInstance(
-                interfaceClass.getClassLoader(),
-                new Class<?>[]{interfaceClass},
-                new InvocationHandler() {
-                    @Override
-                    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                        String serviceAddress = "";
+    @Override
+    public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
+        log.info("register beans");
+        ClassPathScanningCandidateComponentProvider scanner = getScanner();
+        scanner.addIncludeFilter(new AnnotationTypeFilter(RPCService.class));
 
-                        // 创建 RPC 请求对象并设置请求属性
-                        RPCRequest request = new RPCRequest();
-                        request.setRequestId(UUID.randomUUID().toString());
-                        request.setInterfaceName(method.getDeclaringClass().getName());
-                        request.setMethodName(method.getName());
-                        request.setParameterTypes(method.getParameterTypes());
-                        request.setParameters(args);
-                        // 获取 RPC 服务地址
-                        if (serviceDiscovery != null) {
-                            String serviceName = interfaceClass.getName();
-                            serviceAddress = serviceDiscovery.discover(serviceName);
-                            log.debug("discover service: {} => {}", serviceName, serviceAddress);
-                        }
-                        if (StringUtils.isEmpty(serviceAddress)) {
-                            throw new RuntimeException("server address is empty");
-                        }
-                        // 从 RPC 服务地址中解析主机名与端口号
-                        String[] array = StringUtils.split(serviceAddress, ":");
-                        String host = array[0];
-                        int port = Integer.parseInt(array[1]);
-                        // 创建 RPC 客户端对象并发送 RPC 请求
-                        RPCClient client = new RPCClient(host, port);
-                        long time = System.currentTimeMillis();
-                        RPCResponse response = client.send(request);
-                        log.debug("time: {}ms", System.currentTimeMillis() - time);
-                        if (response == null) {
-                            throw new RuntimeException("response is null");
-                        }
-                        // 返回 RPC 响应结果
-                        if (response.hasException()) {
-                            throw response.getException();
-                        } else {
-                            return response.getResult();
+        Set<BeanDefinition> candidateComponents = scanner
+                .findCandidateComponents("pw.hshen");
+        for (BeanDefinition candidateComponent : candidateComponents) {
+            if (candidateComponent instanceof AnnotatedBeanDefinition) {
+                // verify annotated class is an interface
+                AnnotatedBeanDefinition beanDefinition = (AnnotatedBeanDefinition) candidateComponent;
+                AnnotationMetadata annotationMetadata = beanDefinition.getMetadata();
+
+                BeanDefinitionHolder holder = createBeanDefinition(annotationMetadata);
+                BeanDefinitionReaderUtils.registerBeanDefinition(holder, registry);
+            }
+        }
+    }
+
+    private ClassPathScanningCandidateComponentProvider getScanner() {
+        return new ClassPathScanningCandidateComponentProvider(false) {
+
+            @Override
+            protected boolean isCandidateComponent(AnnotatedBeanDefinition beanDefinition) {
+                if (beanDefinition.getMetadata().isIndependent()) {
+
+                    if (beanDefinition.getMetadata().isInterface()
+                            && beanDefinition.getMetadata().getInterfaceNames().length == 1
+                            && Annotation.class.getName().equals(beanDefinition.getMetadata().getInterfaceNames()[0])) {
+
+                        try {
+
+                            Class<?> target = Class.forName(beanDefinition.getMetadata().getClassName());
+
+                            return !target.isAnnotation();
+                        } catch (Exception ex) {
+
+                            this.logger.error("Could not load target class: "
+                                    + beanDefinition.getMetadata().getClassName(), ex);
                         }
                     }
+                    return true;
                 }
-        );
+                return false;
+
+            }
+        };
+    }
+
+    private BeanDefinitionHolder createBeanDefinition(AnnotationMetadata annotationMetadata) {
+        String className = annotationMetadata.getClassName();
+        log.debug("Creating bean definition for class: {}", className);
+
+        BeanDefinitionBuilder definition = BeanDefinitionBuilder.genericBeanDefinition(ProxyFactoryBean.class);
+        String beanName = StringUtils.uncapitalize(className.substring(className.lastIndexOf('.') + 1));
+
+        definition.addPropertyValue("type", className);
+        definition.addPropertyValue("serviceDiscovery", serviceDiscovery);
+
+        return new BeanDefinitionHolder(definition.getBeanDefinition(), beanName);
+    }
+
+    private String getMainClassName() {
+        for (final Map.Entry<String, String> entry : System.getenv().entrySet()) {
+            if (entry.getKey().startsWith("JAVA_MAIN_CLASS")) {
+                String mainClass = entry.getValue();
+                log.debug("Main class: {}", mainClass);
+                return mainClass;
+            }
+        }
+        throw new IllegalStateException("Cannot determine main class.");
+    }
+
+    @Override
+    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+
     }
 }

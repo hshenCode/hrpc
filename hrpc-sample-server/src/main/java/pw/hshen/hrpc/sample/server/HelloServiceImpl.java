@@ -1,9 +1,9 @@
-package pw.hshen.server;
+package pw.hshen.hrpc.sample.server;
 
-import pw.hshen.hrpc.HelloService;
-import pw.hshen.hrpc.server.annotation.RPCService;
+import pw.hshen.hrpc.sample.spi.HelloService;
+import org.springframework.stereotype.Component;
 
-@RPCService(HelloService.class)
+@Component
 public class HelloServiceImpl implements HelloService {
 
     @Override

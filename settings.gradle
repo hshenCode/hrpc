@@ -4,4 +4,7 @@ include 'hrpc-client'
 include 'hrpc-registry'
 include 'hrpc-communication'
 include 'hrpc-common'
+include 'hrpc-sample-spi'
+include 'hrpc-sample-client'
+include 'hrpc-sample-server'
 

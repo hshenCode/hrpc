@@ -10,7 +10,7 @@
     <context:property-placeholder location="classpath:rpc.properties"/>
 
     <bean id="serviceDiscovery" class="pw.hshen.hrpc.registry.impl.zookeeper.ZKServiceDiscovery">
-        <constructor-arg name="zkAddress" value="${rpc.registry_address}"/>
+        <constructor-arg name="zkAddress" value="127.0.0.1:2181"/>
     </bean>
 
     <bean id="rpcProxy" class="pw.hshen.hrpc.client.RPCClientProxy">

@@ -7,7 +7,7 @@
        http://www.springframework.org/schema/context
        http://www.springframework.org/schema/context/spring-context.xsd">
 
-    <context:component-scan base-package="pw.hshen.server"/>
+    <context:component-scan base-package="pw.hshen.hrpc.sample.server"/>
 
     <context:property-placeholder location="classpath:rpc.properties"/>
 

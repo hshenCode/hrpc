@@ -1,4 +1,4 @@
-package pw.hshen.server;
+package pw.hshen.hrpc.sample.server;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 

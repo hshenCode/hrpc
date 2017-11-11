@@ -25,6 +25,7 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<RPCRequest> {
 
 	@Override
 	public void channelRead0(final ChannelHandlerContext ctx, RPCRequest request) throws Exception {
+		log.debug("Get request: {}", request);
 		// 创建并初始化 RPC 响应对象
 		RPCResponse response = new RPCResponse();
 		response.setRequestId(request.getRequestId());

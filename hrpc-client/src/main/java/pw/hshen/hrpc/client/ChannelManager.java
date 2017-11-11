@@ -91,7 +91,7 @@ public class ChannelManager {
 		@Override
 		public void channelRead0(ChannelHandlerContext ctx, RPCResponse response) throws Exception {
 			log.debug("Get response: {}", response);
-			RPCFutureManager.getInstance().futureDone(response);
+			ResponseFutureManager.getInstance().futureDone(response);
 		}
 
 		@Override

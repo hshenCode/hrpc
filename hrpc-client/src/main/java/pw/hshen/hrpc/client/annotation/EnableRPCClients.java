@@ -9,8 +9,8 @@ import java.lang.annotation.Target;
  * @author hongbin
  * Created on 22/10/2017
  */
-@Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface EnableRPCClients {
 	String[] basePackages() default {};
 }

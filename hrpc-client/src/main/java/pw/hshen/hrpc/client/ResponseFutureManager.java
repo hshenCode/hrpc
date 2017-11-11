@@ -8,19 +8,19 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author hongbin
  * Created on 11/11/2017
  */
-public class RPCFutureManager {
+public class ResponseFutureManager {
 	/**
 	 * Singleton
 	 */
-	private static RPCFutureManager rpcFutureManager;
+	private static ResponseFutureManager rpcFutureManager;
 
-	private RPCFutureManager(){}
+	private ResponseFutureManager(){}
 
-	public static RPCFutureManager getInstance() {
+	public static ResponseFutureManager getInstance() {
 		if (rpcFutureManager == null) {
 			synchronized (ChannelManager.class) {
 				if (rpcFutureManager == null) {
-					rpcFutureManager = new RPCFutureManager();
+					rpcFutureManager = new ResponseFutureManager();
 				}
 			}
 		}

@@ -8,7 +8,7 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.util.StringUtils;
 import pw.hshen.hrpc.client.ChannelManager;
 import pw.hshen.hrpc.client.RPCResponseFuture;
-import pw.hshen.hrpc.client.RPCFutureManager;
+import pw.hshen.hrpc.client.ResponseFutureManager;
 import pw.hshen.hrpc.common.model.RPCRequest;
 import pw.hshen.hrpc.common.model.RPCResponse;
 import pw.hshen.hrpc.registry.ServiceDiscovery;
@@ -100,10 +100,14 @@ public class ProxyFactoryBean implements FactoryBean<Object> {
 	}
 
 	private RPCResponse sendRequest(Channel channel, RPCRequest request) {
+		log.debug("Send request, channel: {}, request: {}", channel, request);
 		CountDownLatch latch = new CountDownLatch(1);
 		RPCResponseFuture rpcResponseFuture = new RPCResponseFuture();
-		RPCFutureManager.getInstance().registerFuture(request.getRequestId(), rpcResponseFuture);
-		channel.writeAndFlush(request).addListener((ChannelFutureListener) future -> latch.countDown());
+		ResponseFutureManager.getInstance().registerFuture(request.getRequestId(), rpcResponseFuture);
+		channel.writeAndFlush(request).addListener((ChannelFutureListener) future -> {
+			log.debug("Request sent.");
+			latch.countDown();
+		});
 		try {
 			latch.await();
 		} catch (InterruptedException e) {

@@ -15,7 +15,7 @@
         <constructor-arg name="zkAddress" value="127.0.0.1:2181"/>
     </bean>
 
-    <bean id="rpcProxy" class="pw.hshen.hrpc.client.proxy.RPCServiceProxyProvider">
+    <bean id="rpcProxy" class="pw.hshen.hrpc.client.proxy.ServiceProxyProvider">
         <constructor-arg name="serviceDiscovery" ref="serviceDiscovery"/>
     </bean>
 

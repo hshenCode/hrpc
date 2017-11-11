@@ -24,7 +24,6 @@ public class AnotherService {
 	public void callHelloService() throws Exception {
 		log.info("Result of callHelloService: {}", helloService.hello("world"));
 
-		Thread.sleep(2000);
 		log.info("Result of callHelloService: {}", helloService.hello("world"));
 
 		log.info("Result of callHelloService2: {}", helloService2.hello("world"));

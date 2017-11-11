@@ -1,5 +1,6 @@
 package pw.hshen.hrpc.server.handler;
 
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -36,8 +37,12 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<RPCRequest> {
 			log.warn("handle result failure");
 			response.setException(e);
 		}
-		// 写入 RPC 响应对象并自动关闭连接
-		ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+		ctx.writeAndFlush(response).addListener(new ChannelFutureListener() {
+			@Override
+			public void operationComplete(ChannelFuture channelFuture) throws Exception {
+				log.debug("Send response for request " + request.getRequestId());
+			}
+		});
 	}
 
 	private Object handle(RPCRequest request) throws Exception {

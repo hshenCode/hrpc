@@ -15,22 +15,22 @@ import java.util.List;
 @AllArgsConstructor
 public class RPCDecoder extends ByteToMessageDecoder {
 
-    private Class<?> genericClass;
-    private Serializer serializer;
+	private Class<?> genericClass;
+	private Serializer serializer;
 
-    @Override
-    public void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
-        if (in.readableBytes() < 4) {
-            return;
-        }
-        in.markReaderIndex();
-        int dataLength = in.readInt();
-        if (in.readableBytes() < dataLength) {
-            in.resetReaderIndex();
-            return;
-        }
-        byte[] data = new byte[dataLength];
-        in.readBytes(data);
-        out.add(serializer.deserialize(data, genericClass));
-    }
+	@Override
+	public void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
+		if (in.readableBytes() < 4) {
+			return;
+		}
+		in.markReaderIndex();
+		int dataLength = in.readInt();
+		if (in.readableBytes() < dataLength) {
+			in.resetReaderIndex();
+			return;
+		}
+		byte[] data = new byte[dataLength];
+		in.readBytes(data);
+		out.add(serializer.deserialize(data, genericClass));
+	}
 }

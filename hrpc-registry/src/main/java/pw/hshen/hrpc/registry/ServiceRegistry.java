@@ -5,5 +5,5 @@ package pw.hshen.hrpc.registry;
  * Created on 21/10/2017
  */
 public interface ServiceRegistry {
-    void register(String serviceName, String serviceAddress);
+	void register(String serviceName, String serviceAddress);
 }

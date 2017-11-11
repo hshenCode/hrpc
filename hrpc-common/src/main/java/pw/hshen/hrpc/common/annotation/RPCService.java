@@ -18,5 +18,5 @@ import java.lang.annotation.Target;
 @Inherited
 public @interface RPCService {
 
-    Class<?> value();
+	Class<?> value();
 }

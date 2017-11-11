@@ -5,7 +5,7 @@ package pw.hshen.hrpc.communication.serialization;
  * Created on 21/10/2017
  */
 public interface Serializer {
-    <T> byte[] serialize(T obj);
+	<T> byte[] serialize(T obj);
 
-    <T> T deserialize(byte[] data, Class<T> cls);
+	<T> T deserialize(byte[] data, Class<T> cls);
 }

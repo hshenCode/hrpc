@@ -12,10 +12,10 @@ import pw.hshen.hrpc.sample.spi.HelloService;
 @Component
 @Slf4j
 public class AnotherService {
-    @Autowired
-    HelloService helloService;
+	@Autowired
+	HelloService helloService;
 
-    public void callHelloService() {
-        log.info("Result of callHelloService: {}", helloService.hello("world"));
-    }
+	public void callHelloService() {
+		log.info("Result of callHelloService: {}", helloService.hello("world"));
+	}
 }

@@ -10,9 +10,9 @@ import lombok.Data;
 @Data
 @Builder
 public class RPCRequest {
-    private String requestId;
-    private String interfaceName;
-    private String methodName;
-    private Class<?>[] parameterTypes;
-    private Object[] parameters;
+	private String requestId;
+	private String interfaceName;
+	private String methodName;
+	private Class<?>[] parameterTypes;
+	private Object[] parameters;
 }

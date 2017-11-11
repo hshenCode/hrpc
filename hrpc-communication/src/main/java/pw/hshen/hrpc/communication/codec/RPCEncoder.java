@@ -13,15 +13,15 @@ import pw.hshen.hrpc.communication.serialization.Serializer;
 @AllArgsConstructor
 public class RPCEncoder extends MessageToByteEncoder {
 
-    private Class<?> genericClass;
-    private Serializer serializer;
+	private Class<?> genericClass;
+	private Serializer serializer;
 
-    @Override
-    public void encode(ChannelHandlerContext ctx, Object in, ByteBuf out) throws Exception {
-        if (genericClass.isInstance(in)) {
-            byte[] data = serializer.serialize(in);
-            out.writeInt(data.length);
-            out.writeBytes(data);
-        }
-    }
+	@Override
+	public void encode(ChannelHandlerContext ctx, Object in, ByteBuf out) throws Exception {
+		if (genericClass.isInstance(in)) {
+			byte[] data = serializer.serialize(in);
+			out.writeInt(data.length);
+			out.writeBytes(data);
+		}
+	}
 }

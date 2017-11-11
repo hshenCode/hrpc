@@ -14,29 +14,29 @@ import java.util.ArrayList;
  */
 public class ConsulServiceRegistry implements ServiceRegistry {
 
-    private ConsulClient consulClient;
+	private ConsulClient consulClient;
 
-    public ConsulServiceRegistry(String consulAddress) {
-        String address[] = consulAddress.split(":");
-        ConsulRawClient rawClient = new ConsulRawClient(address[0], Integer.valueOf(address[1]));
-        consulClient = new ConsulClient(rawClient);
-    }
+	public ConsulServiceRegistry(String consulAddress) {
+		String address[] = consulAddress.split(":");
+		ConsulRawClient rawClient = new ConsulRawClient(address[0], Integer.valueOf(address[1]));
+		consulClient = new ConsulClient(rawClient);
+	}
 
-    @Override
-    public void register(String serviceName, String serviceAddress) {
-        NewService newService = new NewService();
-        newService.setId(generateNewIdForService(serviceName));
-        newService.setName(serviceName);
-        newService.setTags(new ArrayList<>());
-        String[] address = serviceAddress.split(":");
-        newService.setAddress(address[0]);
-        newService.setPort(Integer.valueOf(address[1]));
-        consulClient.agentServiceRegister(newService);
-    }
+	@Override
+	public void register(String serviceName, String serviceAddress) {
+		NewService newService = new NewService();
+		newService.setId(generateNewIdForService(serviceName));
+		newService.setName(serviceName);
+		newService.setTags(new ArrayList<>());
+		String[] address = serviceAddress.split(":");
+		newService.setAddress(address[0]);
+		newService.setPort(Integer.valueOf(address[1]));
+		consulClient.agentServiceRegister(newService);
+	}
 
-    private String generateNewIdForService(String serviceName){
-        // TODO: Confirm id is unique
-        // serviceName + ip + port
-        return serviceName + "-" + "";
-    }
+	private String generateNewIdForService(String serviceName){
+		// TODO: Confirm id is unique
+		// serviceName + ip + port
+		return serviceName + "-" + "";
+	}
 }

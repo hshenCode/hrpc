@@ -7,13 +7,15 @@
        http://www.springframework.org/schema/context
        http://www.springframework.org/schema/context/spring-context.xsd">
 
+    <context:component-scan base-package="pw.hshen.hrpc.sample.client"/>
+
     <context:property-placeholder location="classpath:rpc.properties"/>
 
     <bean id="serviceDiscovery" class="pw.hshen.hrpc.registry.impl.zookeeper.ZKServiceDiscovery">
         <constructor-arg name="zkAddress" value="127.0.0.1:2181"/>
     </bean>
 
-    <bean id="rpcProxy" class="pw.hshen.hrpc.client.RPCClientProxy">
+    <bean id="rpcProxy" class="pw.hshen.hrpc.client.proxy.RPCServiceProxyProvider">
         <constructor-arg name="serviceDiscovery" ref="serviceDiscovery"/>
     </bean>
 

@@ -1,5 +1,6 @@
-package pw.hshen.hrpc.communication.model;
+package pw.hshen.hrpc.common.model;
 
+import lombok.Builder;
 import lombok.Data;
 
 /**
@@ -7,6 +8,7 @@ import lombok.Data;
  * Created on 21/10/2017
  */
 @Data
+@Builder
 public class RPCRequest {
     private String requestId;
     private String interfaceName;

@@ -6,4 +6,5 @@ dependencies {
     provided 'org.apache.zookeeper:zookeeper'
     provided 'com.101tec:zkclient'
     provided 'org.springframework:spring-context'
+    provided 'com.ecwid.consul:consul-api'
 }

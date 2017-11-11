@@ -1,4 +1,4 @@
-package pw.hshen.hrpc.client;
+package pw.hshen.hrpc.client.proxy;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +13,7 @@ import org.springframework.beans.factory.support.BeanDefinitionReaderUtils;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.util.StringUtils;
@@ -24,12 +25,16 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * Register proxy bean for required client in bean container.
+ * 1. Get interfaces with annotation RPCService
+ * 2. Create proxy bean for the interfaces and register them
+ *
  * @author hongbin
  * Created on 21/10/2017
  */
 @Slf4j
 @RequiredArgsConstructor
-public class RPCClientProxy implements BeanDefinitionRegistryPostProcessor {
+public class RPCServiceProxyProvider extends PropertySourcesPlaceholderConfigurer implements BeanDefinitionRegistryPostProcessor {
 
     @NonNull
     private ServiceDiscovery serviceDiscovery;
@@ -66,27 +71,24 @@ public class RPCClientProxy implements BeanDefinitionRegistryPostProcessor {
                             && Annotation.class.getName().equals(beanDefinition.getMetadata().getInterfaceNames()[0])) {
 
                         try {
-
                             Class<?> target = Class.forName(beanDefinition.getMetadata().getClassName());
-
                             return !target.isAnnotation();
                         } catch (Exception ex) {
 
-                            this.logger.error("Could not load target class: "
-                                    + beanDefinition.getMetadata().getClassName(), ex);
+                            log.error("Could not load target class: {}, {}",
+                                    beanDefinition.getMetadata().getClassName(), ex);
                         }
                     }
                     return true;
                 }
                 return false;
-
             }
         };
     }
 
     private BeanDefinitionHolder createBeanDefinition(AnnotationMetadata annotationMetadata) {
         String className = annotationMetadata.getClassName();
-        log.debug("Creating bean definition for class: {}", className);
+        log.info("Creating bean definition for class: {}", className);
 
         BeanDefinitionBuilder definition = BeanDefinitionBuilder.genericBeanDefinition(ProxyFactoryBean.class);
         String beanName = StringUtils.uncapitalize(className.substring(className.lastIndexOf('.') + 1));

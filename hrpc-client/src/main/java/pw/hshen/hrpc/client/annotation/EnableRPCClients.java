@@ -1,4 +1,4 @@
-package pw.hshen.hrpc.common.annotation;
+package pw.hshen.hrpc.client.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

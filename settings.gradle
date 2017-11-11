@@ -7,4 +7,5 @@ include 'hrpc-common'
 include 'hrpc-sample-spi'
 include 'hrpc-sample-client'
 include 'hrpc-sample-server'
+include 'hrpc-load-balancer'
 

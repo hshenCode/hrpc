@@ -11,7 +11,7 @@ import pw.hshen.hrpc.registry.ServiceRegistry;
 @Slf4j
 public class ZKServiceRegistry implements ServiceRegistry {
 
-    private final ZkClient zkClient;
+    private ZkClient zkClient;
 
     public ZKServiceRegistry(String zkAddress) {
         // 创建 ZooKeeper 客户端

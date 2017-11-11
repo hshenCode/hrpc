@@ -4,8 +4,8 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
-import pw.hshen.hrpc.communication.model.RPCRequest;
-import pw.hshen.hrpc.communication.model.RPCResponse;
+import pw.hshen.hrpc.common.model.RPCRequest;
+import pw.hshen.hrpc.common.model.RPCResponse;
 
 import java.lang.reflect.Method;
 import java.util.Map;

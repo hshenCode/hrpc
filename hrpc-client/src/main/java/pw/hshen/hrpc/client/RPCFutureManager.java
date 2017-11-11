@@ -27,10 +27,10 @@ public class RPCFutureManager {
 		return rpcFutureManager;
 	}
 
-	private ConcurrentHashMap<String, RPCFuture> rpcFutureMap = new ConcurrentHashMap<>();
+	private ConcurrentHashMap<String, RPCResponseFuture> rpcFutureMap = new ConcurrentHashMap<>();
 
-	public void registerFuture(String requestId, RPCFuture rpcFuture) {
-		rpcFutureMap.put(requestId, rpcFuture);
+	public void registerFuture(String requestId, RPCResponseFuture rpcResponseFuture) {
+		rpcFutureMap.put(requestId, rpcResponseFuture);
 	}
 
 	public void futureDone(RPCResponse response) {

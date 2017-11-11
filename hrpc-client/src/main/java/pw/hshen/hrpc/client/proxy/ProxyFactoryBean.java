@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.util.StringUtils;
 import pw.hshen.hrpc.client.ChannelManager;
-import pw.hshen.hrpc.client.RPCFuture;
+import pw.hshen.hrpc.client.RPCResponseFuture;
 import pw.hshen.hrpc.client.RPCFutureManager;
 import pw.hshen.hrpc.common.model.RPCRequest;
 import pw.hshen.hrpc.common.model.RPCResponse;
@@ -20,6 +20,8 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
 /**
+ * FactoryBean for service proxy
+ *
  * @author hongbin
  * Created on 24/10/2017
  */
@@ -99,8 +101,8 @@ public class ProxyFactoryBean implements FactoryBean<Object> {
 
 	private RPCResponse sendRequest(Channel channel, RPCRequest request) {
 		CountDownLatch latch = new CountDownLatch(1);
-		RPCFuture rpcFuture = new RPCFuture();
-		RPCFutureManager.getInstance().registerFuture(request.getRequestId(), rpcFuture);
+		RPCResponseFuture rpcResponseFuture = new RPCResponseFuture();
+		RPCFutureManager.getInstance().registerFuture(request.getRequestId(), rpcResponseFuture);
 		channel.writeAndFlush(request).addListener((ChannelFutureListener) future -> latch.countDown());
 		try {
 			latch.await();
@@ -109,7 +111,7 @@ public class ProxyFactoryBean implements FactoryBean<Object> {
 		}
 
 		try {
-			return rpcFuture.get();
+			return rpcResponseFuture.get();
 		} catch (Exception e) {
 			log.warn("Exception:", e);
 			return null;

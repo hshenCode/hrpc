@@ -14,7 +14,7 @@ import java.util.concurrent.TimeoutException;
  * Created on 11/11/2017
  */
 @Slf4j
-public class RPCFuture implements Future<Object> {
+public class RPCResponseFuture implements Future<Object> {
 
 	private RPCResponse response;
 

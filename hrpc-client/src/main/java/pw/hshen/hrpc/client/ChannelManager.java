@@ -37,54 +37,54 @@ public class ChannelManager {
 
 	private ChannelManager(){}
 
-    public static ChannelManager getInstance() {
-        if (channelManager == null) {
-            synchronized (ChannelManager.class) {
-                if (channelManager == null) {
-                    channelManager = new ChannelManager();
-                }
-            }
-        }
-        return channelManager;
-    }
+	public static ChannelManager getInstance() {
+		if (channelManager == null) {
+			synchronized (ChannelManager.class) {
+				if (channelManager == null) {
+					channelManager = new ChannelManager();
+				}
+			}
+		}
+		return channelManager;
+	}
 
 	private Map<InetSocketAddress, Channel> channels = new ConcurrentHashMap<>();
 
 	public Channel getChannel(InetSocketAddress inetSocketAddress) {
-        Channel channel = channels.get(inetSocketAddress);
-        if (null == channel) {
-            EventLoopGroup group = new NioEventLoopGroup();
-            try {
-                Bootstrap bootstrap = new Bootstrap();
-                bootstrap.group(group)
-                        .channel(NioSocketChannel.class)
-                        .handler(new RPCChannelInitializer())
-                        .option(ChannelOption.SO_KEEPALIVE, true);
+		Channel channel = channels.get(inetSocketAddress);
+		if (null == channel) {
+			EventLoopGroup group = new NioEventLoopGroup();
+			try {
+				Bootstrap bootstrap = new Bootstrap();
+				bootstrap.group(group)
+						.channel(NioSocketChannel.class)
+						.handler(new RPCChannelInitializer())
+						.option(ChannelOption.SO_KEEPALIVE, true);
 
-                channel = bootstrap.connect(inetSocketAddress.getHostName(), inetSocketAddress.getPort()).sync()
-                        .channel();
-                registerChannel(inetSocketAddress, channel);
-            } catch (Exception e) {
-                log.warn("Fail to get channel for address: {}", inetSocketAddress);
-            }
-        }
-        return channel;
-    }
+				channel = bootstrap.connect(inetSocketAddress.getHostName(), inetSocketAddress.getPort()).sync()
+						.channel();
+				registerChannel(inetSocketAddress, channel);
+			} catch (Exception e) {
+				log.warn("Fail to get channel for address: {}", inetSocketAddress);
+			}
+		}
+		return channel;
+	}
 
 	public void registerChannel(InetSocketAddress inetSocketAddress, Channel channel) {
-        channels.put(inetSocketAddress, channel);
-    }
+		channels.put(inetSocketAddress, channel);
+	}
 
-    private class RPCChannelInitializer extends ChannelInitializer<SocketChannel> {
+	private class RPCChannelInitializer extends ChannelInitializer<SocketChannel> {
 
-	    @Override
-	    protected void initChannel(SocketChannel ch) throws Exception {
-		    ChannelPipeline pipeline = ch.pipeline();
-		    pipeline.addLast(new RPCEncoder(RPCRequest.class, new ProtobufSerializer()));
-		    pipeline.addLast(new RPCDecoder(RPCResponse.class, new ProtobufSerializer()));
-		    pipeline.addLast(new RPCResponseHandler());
-	    }
-    }
+		@Override
+		protected void initChannel(SocketChannel ch) throws Exception {
+			ChannelPipeline pipeline = ch.pipeline();
+			pipeline.addLast(new RPCEncoder(RPCRequest.class, new ProtobufSerializer()));
+			pipeline.addLast(new RPCDecoder(RPCResponse.class, new ProtobufSerializer()));
+			pipeline.addLast(new RPCResponseHandler());
+		}
+	}
 
 	private class RPCResponseHandler extends SimpleChannelInboundHandler<RPCResponse> {
 

@@ -2,7 +2,7 @@ version '1.0-SNAPSHOT'
 
 dependencies {
     compile project(':hrpc-common')
-    compile project(':hrpc-communication')
+    compile project(':hrpc-codec')
     compile project(':hrpc-registry')
 
     provided 'io.netty:netty-all'

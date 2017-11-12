@@ -18,13 +18,13 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.StringUtils;
-import pw.hshen.hrpc.communication.codec.RPCEncoder;
+import pw.hshen.hrpc.codec.coder.RPCEncoder;
 import pw.hshen.hrpc.common.model.RPCRequest;
 import pw.hshen.hrpc.common.model.RPCResponse;
-import pw.hshen.hrpc.communication.serialization.impl.ProtobufSerializer;
+import pw.hshen.hrpc.codec.serialization.impl.ProtobufSerializer;
 import pw.hshen.hrpc.registry.ServiceRegistry;
 import pw.hshen.hrpc.common.annotation.RPCService;
-import pw.hshen.hrpc.communication.codec.RPCDecoder;
+import pw.hshen.hrpc.codec.coder.RPCDecoder;
 import pw.hshen.hrpc.server.handler.RPCServerHandler;
 
 import java.lang.annotation.Annotation;

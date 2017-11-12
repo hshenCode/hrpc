@@ -1,10 +1,10 @@
-package pw.hshen.hrpc.communication.codec;
+package pw.hshen.hrpc.codec.coder;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 import lombok.AllArgsConstructor;
-import pw.hshen.hrpc.communication.serialization.Serializer;
+import pw.hshen.hrpc.codec.serialization.Serializer;
 
 /**
  * @author hongbin

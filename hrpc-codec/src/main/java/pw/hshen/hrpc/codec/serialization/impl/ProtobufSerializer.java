@@ -1,4 +1,4 @@
-package pw.hshen.hrpc.communication.serialization.impl;
+package pw.hshen.hrpc.codec.serialization.impl;
 
 import com.dyuproject.protostuff.LinkedBuffer;
 import com.dyuproject.protostuff.ProtostuffIOUtil;
@@ -6,7 +6,7 @@ import com.dyuproject.protostuff.Schema;
 import com.dyuproject.protostuff.runtime.RuntimeSchema;
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
-import pw.hshen.hrpc.communication.serialization.Serializer;
+import pw.hshen.hrpc.codec.serialization.Serializer;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

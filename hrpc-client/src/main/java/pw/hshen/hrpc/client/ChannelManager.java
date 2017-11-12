@@ -14,9 +14,9 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import lombok.extern.slf4j.Slf4j;
 import pw.hshen.hrpc.common.model.RPCRequest;
 import pw.hshen.hrpc.common.model.RPCResponse;
-import pw.hshen.hrpc.communication.codec.RPCDecoder;
-import pw.hshen.hrpc.communication.codec.RPCEncoder;
-import pw.hshen.hrpc.communication.serialization.impl.ProtobufSerializer;
+import pw.hshen.hrpc.codec.coder.RPCDecoder;
+import pw.hshen.hrpc.codec.coder.RPCEncoder;
+import pw.hshen.hrpc.codec.serialization.impl.ProtobufSerializer;
 
 import java.net.InetSocketAddress;
 import java.util.Map;

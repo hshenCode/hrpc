@@ -1,4 +1,4 @@
-package pw.hshen.hrpc.communication.serialization;
+package pw.hshen.hrpc.codec.serialization;
 
 /**
  * @author hongbin

@@ -1,5 +1,6 @@
 package pw.hshen.hrpc.client;
 
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import pw.hshen.hrpc.common.model.RPCResponse;
 
@@ -14,20 +15,21 @@ import java.util.concurrent.TimeoutException;
  * Created on 11/11/2017
  */
 @Slf4j
+@Data
 public class RPCResponseFuture implements Future<Object> {
+	private String requestId;
 
 	private RPCResponse response;
 
 	CountDownLatch latch = new CountDownLatch(1);
 
+	public RPCResponseFuture(String requestId) {
+		this.requestId = requestId;
+	}
+
 	public void done(RPCResponse response) {
 		this.response = response;
 		latch.countDown();
-	}
-
-	@Override
-	public boolean isDone() {
-		return false;
 	}
 
 	@Override
@@ -50,6 +52,11 @@ public class RPCResponseFuture implements Future<Object> {
 			log.error(e.getMessage());
 		}
 		return response;
+	}
+
+	@Override
+	public boolean isDone() {
+		return latch.getCount() == 0;
 	}
 
 	@Override

@@ -29,8 +29,8 @@ public class ResponseFutureManager {
 
 	private ConcurrentHashMap<String, RPCResponseFuture> rpcFutureMap = new ConcurrentHashMap<>();
 
-	public void registerFuture(String requestId, RPCResponseFuture rpcResponseFuture) {
-		rpcFutureMap.put(requestId, rpcResponseFuture);
+	public void registerFuture(RPCResponseFuture rpcResponseFuture) {
+		rpcFutureMap.put(rpcResponseFuture.getRequestId(), rpcResponseFuture);
 	}
 
 	public void futureDone(RPCResponse response) {

@@ -102,8 +102,8 @@ public class ProxyFactoryBean implements FactoryBean<Object> {
 	private RPCResponse sendRequest(Channel channel, RPCRequest request) {
 		log.debug("Send request, channel: {}, request: {}", channel, request);
 		CountDownLatch latch = new CountDownLatch(1);
-		RPCResponseFuture rpcResponseFuture = new RPCResponseFuture();
-		ResponseFutureManager.getInstance().registerFuture(request.getRequestId(), rpcResponseFuture);
+		RPCResponseFuture rpcResponseFuture = new RPCResponseFuture(request.getRequestId());
+		ResponseFutureManager.getInstance().registerFuture(rpcResponseFuture);
 		channel.writeAndFlush(request).addListener((ChannelFutureListener) future -> {
 			log.debug("Request sent.");
 			latch.countDown();

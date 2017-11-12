@@ -1,6 +1,8 @@
 package pw.hshen.hrpc.client;
 
 import lombok.Data;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import pw.hshen.hrpc.common.model.RPCResponse;
 
@@ -16,16 +18,14 @@ import java.util.concurrent.TimeoutException;
  */
 @Slf4j
 @Data
+@RequiredArgsConstructor
 public class RPCResponseFuture implements Future<Object> {
+	@NonNull
 	private String requestId;
 
 	private RPCResponse response;
 
 	CountDownLatch latch = new CountDownLatch(1);
-
-	public RPCResponseFuture(String requestId) {
-		this.requestId = requestId;
-	}
 
 	public void done(RPCResponse response) {
 		this.response = response;

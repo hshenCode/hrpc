@@ -1,9 +1,9 @@
 package pw.hshen.hrpc.server.handler;
 
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import pw.hshen.hrpc.common.model.RPCRequest;
 import pw.hshen.hrpc.common.model.RPCResponse;
@@ -16,43 +16,38 @@ import java.util.Map;
  * Created on 21/10/2017
  */
 @Slf4j
+@AllArgsConstructor
 public class RPCServerHandler extends SimpleChannelInboundHandler<RPCRequest> {
 
-	private final Map<String, Object> handlerMap;
-
-	public RPCServerHandler(Map<String, Object> handlerMap) {
-		this.handlerMap = handlerMap;
-	}
+	private Map<String, Object> handlerMap;
 
 	@Override
 	public void channelRead0(final ChannelHandlerContext ctx, RPCRequest request) throws Exception {
 		log.debug("Get request: {}", request);
-		// 创建并初始化 RPC 响应对象
 		RPCResponse response = new RPCResponse();
 		response.setRequestId(request.getRequestId());
 		try {
-			Object result = handle(request);
+			Object result = handleRequest(request);
 			response.setResult(result);
 		} catch (Exception e) {
-			log.warn("handle result failure");
+			log.warn("Get exception when hanlding request, exception: {}", e);
 			response.setException(e);
 		}
-		ctx.writeAndFlush(response).addListener(new ChannelFutureListener() {
-			@Override
-			public void operationComplete(ChannelFuture channelFuture) throws Exception {
-				log.debug("Send response for request " + request.getRequestId());
-			}
-		});
+		ctx.writeAndFlush(response).addListener(
+				(ChannelFutureListener) channelFuture -> {
+					log.debug("Sent response for request: {}", request.getRequestId());
+				});
 	}
 
-	private Object handle(RPCRequest request) throws Exception {
-		// 获取服务对象
+	private Object handleRequest(RPCRequest request) throws Exception {
+		// Get service bean
 		String serviceName = request.getInterfaceName();
 		Object serviceBean = handlerMap.get(serviceName);
 		if (serviceBean == null) {
-			throw new RuntimeException(String.format("can not find service bean by key: %s", serviceName));
+			throw new RuntimeException(String.format("No service bean available: %s", serviceName));
 		}
-		// 获取反射调用所需的参数
+
+		// Invoke by reflect
 		Class<?> serviceClass = serviceBean.getClass();
 		String methodName = request.getMethodName();
 		Class<?>[] parameterTypes = request.getParameterTypes();

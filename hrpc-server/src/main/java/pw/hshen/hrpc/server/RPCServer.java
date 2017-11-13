@@ -55,7 +55,7 @@ public class RPCServer implements ApplicationContextAware, InitializingBean {
 	public void setApplicationContext(ApplicationContext ctx) throws BeansException {
 		log.info("Putting handler");
 		// Register handler
-		getServiceInterfaces(ctx, RPCService.class)
+		getServiceInterfaces(ctx)
 				.stream()
 				.forEach(interfaceClazz -> {
 					String serviceName = interfaceClazz.getAnnotation(RPCService.class).value().getName();
@@ -118,7 +118,8 @@ public class RPCServer implements ApplicationContextAware, InitializingBean {
 		}
 	}
 
-	private List<Class<?>> getServiceInterfaces(ApplicationContext ctx, Class<? extends Annotation> clazz) {
+	private List<Class<?>> getServiceInterfaces(ApplicationContext ctx) {
+		Class<? extends Annotation> clazz = RPCService.class;
 		return ctx.getBeansWithAnnotation(clazz)
 				.values().stream()
 				.map(AopUtils::getTargetClass)

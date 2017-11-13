@@ -15,7 +15,7 @@ Please refer to:
 - hrpc-sample-server
 - hrpc-sample-spi
 
-##References
+## References
 1. https://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-core/src/main/java/org/springframework/cloud/netflix/feign
 2. https://github.com/luxiaoxun/NettyRpc
 3. https://my.oschina.net/huangyong/blog/361751

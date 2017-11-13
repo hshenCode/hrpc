@@ -46,76 +46,85 @@ public class RPCServer implements ApplicationContextAware, InitializingBean {
     @NonNull
     private String serviceAddress;
 
-    @NonNull
-    private ServiceRegistry serviceRegistry;
+	@NonNull
+	private ServiceRegistry serviceRegistry;
 
-    private Map<String, Object> handlerMap = new HashMap<>();
+	private Map<String, Object> handlerMap = new HashMap<>();
 
-    @Override
-    public void setApplicationContext(ApplicationContext ctx) throws BeansException {
-        log.info("Start register RPC services");
+	@Override
+	public void setApplicationContext(ApplicationContext ctx) throws BeansException {
+		log.info("Putting handler");
+		// Register handler
+		getServiceInterfaces(ctx, RPCService.class)
+				.stream()
+				.forEach(interfaceClazz -> {
+					String serviceName = interfaceClazz.getAnnotation(RPCService.class).value().getName();
+					Object serviceBean = ctx.getBean(interfaceClazz);
+					handlerMap.put(serviceName, serviceBean);
+					log.debug("Put handler: {}, {}", serviceName, serviceBean);
+				});
+	}
 
-        getServiceInterfaces(ctx, RPCService.class)
-                .stream()
-                .forEach(interfaceClazz -> {
-                    log.info("RPC service interface {} found.", interfaceClazz.getName());
-                    String serviceName = interfaceClazz.getAnnotation(RPCService.class).value().getName();
-                    Object serviceBean = ctx.getBean(interfaceClazz);
-                    handlerMap.put(serviceName, serviceBean);
-                    log.info("put handler: {}, {}", serviceName, serviceBean);
-                });
-    }
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		startServer();
+	}
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        EventLoopGroup bossGroup = new NioEventLoopGroup();
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
-        try {
-            // 创建并初始化 Netty 服务端 Bootstrap 对象
-            ServerBootstrap bootstrap = new ServerBootstrap();
-            bootstrap.group(bossGroup, workerGroup);
-            bootstrap.channel(NioServerSocketChannel.class);
-            bootstrap.childHandler(new ChannelInitializer<SocketChannel>() {
-                @Override
-                public void initChannel(SocketChannel channel) throws Exception {
-                    ChannelPipeline pipeline = channel.pipeline();
-                    pipeline.addLast(new RPCDecoder(RPCRequest.class, new ProtobufSerializer()));
-                    pipeline.addLast(new RPCEncoder(RPCResponse.class, new ProtobufSerializer()));
-                    pipeline.addLast(new RPCServerHandler(handlerMap));
-                }
-            });
-            bootstrap.option(ChannelOption.SO_BACKLOG, 1024);
-            bootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
-            // 获取 RPC 服务器的 IP 地址与端口号
-            String[] addressArray = StringUtils.split(serviceAddress, ":");
-            String ip = addressArray[0];
-            int port = Integer.parseInt(addressArray[1]);
-            // 启动 RPC 服务器
-            ChannelFuture future = bootstrap.bind(ip, port).sync();
-            // 注册 RPC 服务地址
-            if (serviceRegistry != null) {
-                for (String interfaceName : handlerMap.keySet()) {
-                    serviceRegistry.register(interfaceName, serviceAddress);
-                    log.debug("register service: {} => {}", interfaceName, serviceAddress);
-                }
-            }
-            log.debug("server started on port {}", port);
-            // 关闭 RPC 服务器
-            future.channel().closeFuture().sync();
-        } finally {
-            workerGroup.shutdownGracefully();
-            bossGroup.shutdownGracefully();
-        }
-    }
+	private void startServer() {
+		// Get ip and port
+		String[] addressArray = StringUtils.split(serviceAddress, ":");
+		String ip = addressArray[0];
+		int port = Integer.parseInt(addressArray[1]);
 
-    private List<Class<?>> getServiceInterfaces(ApplicationContext ctx, Class<? extends Annotation> clazz) {
-        return ctx.getBeansWithAnnotation(clazz)
-                .values().stream()
-                .map(AopUtils::getTargetClass)
-                .map(cls -> Arrays.asList(cls.getInterfaces()))
-                .flatMap(List::stream)
-                .filter(cls -> Objects.nonNull(cls.getAnnotation(clazz)))
-                .collect(Collectors.toList());
-    }
+		log.debug("Starting server on port: {}", port);
+		EventLoopGroup bossGroup = new NioEventLoopGroup();
+		EventLoopGroup workerGroup = new NioEventLoopGroup();
+		try {
+			ServerBootstrap bootstrap = new ServerBootstrap();
+			bootstrap.group(bossGroup, workerGroup)
+					.channel(NioServerSocketChannel.class)
+					.childHandler(new ChannelInitializer<SocketChannel>() {
+						@Override
+						public void initChannel(SocketChannel channel) throws Exception {
+							ChannelPipeline pipeline = channel.pipeline();
+							pipeline.addLast(new RPCDecoder(RPCRequest.class, new ProtobufSerializer()));
+							pipeline.addLast(new RPCEncoder(RPCResponse.class, new ProtobufSerializer()));
+							pipeline.addLast(new RPCServerHandler(handlerMap));
+						}
+					});
+			bootstrap.option(ChannelOption.SO_BACKLOG, 1024);
+			bootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
 
+			ChannelFuture future = bootstrap.bind(ip, port).sync();
+			log.info("Server started");
+
+			registerServices();
+
+			future.channel().closeFuture().sync();
+		} catch (InterruptedException e) {
+			throw new RuntimeException("Server shutdown!", e);
+		} finally {
+			workerGroup.shutdownGracefully();
+			bossGroup.shutdownGracefully();
+		}
+	}
+
+	private void registerServices() {
+		if (serviceRegistry != null && serviceAddress != null) {
+			for (String interfaceName : handlerMap.keySet()) {
+				serviceRegistry.register(interfaceName, serviceAddress.toString());
+				log.info("Registering service: {} with address: {}", interfaceName, serviceAddress);
+			}
+		}
+	}
+
+	private List<Class<?>> getServiceInterfaces(ApplicationContext ctx, Class<? extends Annotation> clazz) {
+		return ctx.getBeansWithAnnotation(clazz)
+				.values().stream()
+				.map(AopUtils::getTargetClass)
+				.map(cls -> Arrays.asList(cls.getInterfaces()))
+				.flatMap(List::stream)
+				.filter(cls -> Objects.nonNull(cls.getAnnotation(clazz)))
+				.collect(Collectors.toList());
+	}
 }

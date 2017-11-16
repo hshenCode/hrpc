@@ -11,8 +11,8 @@
 
     <context:property-placeholder location="classpath:rpc.properties"/>
 
-    <bean id="serviceRegistry"  class="pw.hshen.hrpc.registry.impl.zookeeper.ZKServiceRegistry">
-        <constructor-arg name="zkAddress" value="${rpc.registry_address}"/>
+    <bean id="serviceRegistry"  class="pw.hshen.hrpc.registry.impl.consul.ConsulServiceRegistry">
+		<constructor-arg name="consulAddress" value="127.0.0.1:8500"/>
     </bean>
 
     <bean id="rpcServer" class="pw.hshen.hrpc.server.RPCServer">

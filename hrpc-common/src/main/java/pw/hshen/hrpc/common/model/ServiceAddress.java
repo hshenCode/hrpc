@@ -1,4 +1,4 @@
-package pw.hshen.hrpc.registry.model;
+package pw.hshen.hrpc.common.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

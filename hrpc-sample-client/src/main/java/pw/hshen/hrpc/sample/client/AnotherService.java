@@ -18,9 +18,9 @@ public class AnotherService {
 	public void callHelloService() {
 		while (true) {
 			try {
+				Thread.sleep(1000);
 				log.info("call hello service");
 				log.debug("Result of callHelloService: {}", helloService.hello("world"));
-				Thread.sleep(1000);
 			} catch (Exception e) {
 				log.error("error: ", e);
 			}

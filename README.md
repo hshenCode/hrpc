@@ -1,5 +1,5 @@
 # hrpc
-It's a simple Java RPC framework based on Netty.
+It's a simple Java RPC framework based on Spring, Netty and Consul.
 
 ## How it works
 Some articles in Chinese: 

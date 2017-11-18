@@ -1,6 +1,9 @@
 version '1.0-SNAPSHOT'
 
 dependencies {
+    compile project(':hrpc-common')
+    compile project(':hrpc-load-balancer')
+
     provided 'org.projectlombok:lombok'
     provided 'org.slf4j:slf4j-api'
     provided 'org.apache.zookeeper:zookeeper'

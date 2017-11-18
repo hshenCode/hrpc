@@ -1,6 +1,6 @@
 package pw.hshen.hrpc.registry;
 
-import pw.hshen.hrpc.registry.model.ServiceAddress;
+import pw.hshen.hrpc.common.model.ServiceAddress;
 
 /**
  * @author hongbin

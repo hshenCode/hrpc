@@ -6,6 +6,9 @@ import com.ecwid.consul.v1.QueryParams;
 import com.ecwid.consul.v1.Response;
 import com.ecwid.consul.v1.health.model.HealthService;
 import lombok.extern.slf4j.Slf4j;
+import pw.hshen.hrpc.common.model.ServiceAddress;
+import pw.hshen.hrpc.loadbalancer.LoadBalancer;
+import pw.hshen.hrpc.loadbalancer.impl.RandomLoadBalancer;
 import pw.hshen.hrpc.registry.ServiceDiscovery;
 
 import java.util.HashMap;
@@ -13,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 /**
  * @author hongbin
@@ -23,7 +27,7 @@ public class ConsulServiceDiscovery implements ServiceDiscovery {
 
 	private ConsulClient consulClient;
 
-	Map<String, List<HealthService>> healthServicesMap = new ConcurrentHashMap<>();
+	Map<String, LoadBalancer<ServiceAddress>> loadBalancerMap = new ConcurrentHashMap<>();
 
 	public ConsulServiceDiscovery(String consulAddress) {
 		String[] address = consulAddress.split(":");
@@ -34,26 +38,17 @@ public class ConsulServiceDiscovery implements ServiceDiscovery {
 	@Override
 	public String discover(String serviceName) {
 		List<HealthService> healthServices;
-		if (healthServicesMap.containsKey(serviceName)) {
-			healthServices = healthServicesMap.get(serviceName);
-		} else {
+		if (!loadBalancerMap.containsKey(serviceName)) {
 			healthServices = consulClient.getHealthServices(serviceName, true, QueryParams.DEFAULT)
 					.getValue();
-			healthServicesMap.put(serviceName, healthServices);
+			loadBalancerMap.put(serviceName, buildLoadBalancer(healthServices));
+
+			// Watch consul
 			longPolling(serviceName);
 		}
-		// TODO: Just return random now. We'll introduce load balancer later.
-		HealthService.Service service =null;
-		try {
-			service = healthServices.get(ThreadLocalRandom.current().nextInt(healthServices.size())).getService();
-		} catch (Exception e) {
-			log.error(e.getMessage());
-			return null;
-		}
-		return service.getAddress() + ":" + service.getPort();
+		return loadBalancerMap.get(serviceName).next().toString();
 	}
 
-	// TODO: new thread.
 	private void longPolling(String serviceName){
 		new Thread(new Runnable() {
 			@Override
@@ -72,12 +67,21 @@ public class ConsulServiceDiscovery implements ServiceDiscovery {
 					consulIndex = healthyServices.getConsulIndex();
 					log.debug("consul index for {} is: {}", serviceName, consulIndex);
 
-					List<HealthService> services = healthyServices.getValue();
-					log.debug("service addresses of {} is: {}", serviceName, services);
+					List<HealthService> healthServices = healthyServices.getValue();
+					log.debug("service addresses of {} is: {}", serviceName, healthServices);
 
-					healthServicesMap.put(serviceName, services);
+					loadBalancerMap.put(serviceName, buildLoadBalancer(healthServices));
 				} while(true);
 			}
 		}).start();
+	}
+
+	private LoadBalancer buildLoadBalancer(List<HealthService> healthServices) {
+		return new RandomLoadBalancer(healthServices.stream()
+				.map(healthService -> {
+					HealthService.Service service =healthService.getService();
+					return new ServiceAddress(service.getAddress() , service.getPort());
+				})
+				.collect(Collectors.toList()));
 	}
 }

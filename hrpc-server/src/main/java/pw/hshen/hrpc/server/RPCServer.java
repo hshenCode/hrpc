@@ -24,7 +24,7 @@ import pw.hshen.hrpc.codec.serialization.impl.ProtobufSerializer;
 import pw.hshen.hrpc.registry.ServiceRegistry;
 import pw.hshen.hrpc.common.annotation.RPCService;
 import pw.hshen.hrpc.codec.coder.RPCDecoder;
-import pw.hshen.hrpc.registry.model.ServiceAddress;
+import pw.hshen.hrpc.common.model.ServiceAddress;
 import pw.hshen.hrpc.server.handler.RPCServerHandler;
 
 import java.lang.annotation.Annotation;

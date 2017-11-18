@@ -3,9 +3,8 @@ package pw.hshen.hrpc.registry.impl.consul;
 import com.ecwid.consul.v1.ConsulClient;
 import com.ecwid.consul.v1.ConsulRawClient;
 import com.ecwid.consul.v1.agent.model.NewService;
-import org.apache.commons.codec.digest.DigestUtils;
+import pw.hshen.hrpc.common.model.ServiceAddress;
 import pw.hshen.hrpc.registry.ServiceRegistry;
-import pw.hshen.hrpc.registry.model.ServiceAddress;
 
 import java.util.ArrayList;
 
@@ -26,7 +25,7 @@ public class ConsulServiceRegistry implements ServiceRegistry {
 	@Override
 	public void register(String serviceName, ServiceAddress serviceAddress) {
 		NewService newService = new NewService();
-		newService.setId(generateNewIdForService(serviceName));
+		newService.setId(generateNewIdForService(serviceName, serviceAddress));
 		newService.setName(serviceName);
 		newService.setTags(new ArrayList<>());
 		newService.setAddress(serviceAddress.getIp());
@@ -39,9 +38,8 @@ public class ConsulServiceRegistry implements ServiceRegistry {
 		consulClient.agentServiceRegister(newService);
 	}
 
-	private String generateNewIdForService(String serviceName){
-		// TODO: Confirm id is unique
+	private String generateNewIdForService(String serviceName, ServiceAddress serviceAddress){
 		// serviceName + ip + port
-		return serviceName + "-" + "";
+		return serviceName + "-" + serviceAddress.getIp() + "-" + serviceAddress.getPort();
 	}
 }

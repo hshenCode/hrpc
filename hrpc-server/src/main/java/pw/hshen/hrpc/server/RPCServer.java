@@ -17,7 +17,6 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.util.StringUtils;
 import pw.hshen.hrpc.codec.coder.RPCEncoder;
 import pw.hshen.hrpc.common.model.RPCRequest;
 import pw.hshen.hrpc.common.model.RPCResponse;
@@ -25,6 +24,7 @@ import pw.hshen.hrpc.codec.serialization.impl.ProtobufSerializer;
 import pw.hshen.hrpc.registry.ServiceRegistry;
 import pw.hshen.hrpc.common.annotation.RPCService;
 import pw.hshen.hrpc.codec.coder.RPCDecoder;
+import pw.hshen.hrpc.registry.model.ServiceAddress;
 import pw.hshen.hrpc.server.handler.RPCServerHandler;
 
 import java.lang.annotation.Annotation;
@@ -44,8 +44,9 @@ import java.util.stream.Collectors;
 public class RPCServer implements ApplicationContextAware, InitializingBean {
 
     @NonNull
-    private String serviceAddress;
-
+    private String serverIp;
+    @NonNull
+    private int serverPort;
 	@NonNull
 	private ServiceRegistry serviceRegistry;
 
@@ -72,11 +73,7 @@ public class RPCServer implements ApplicationContextAware, InitializingBean {
 
 	private void startServer() {
 		// Get ip and port
-		String[] addressArray = StringUtils.split(serviceAddress, ":");
-		String ip = addressArray[0];
-		int port = Integer.parseInt(addressArray[1]);
-
-		log.debug("Starting server on port: {}", port);
+		log.debug("Starting server on port: {}", serverPort);
 		EventLoopGroup bossGroup = new NioEventLoopGroup();
 		EventLoopGroup workerGroup = new NioEventLoopGroup();
 		try {
@@ -95,10 +92,11 @@ public class RPCServer implements ApplicationContextAware, InitializingBean {
 			bootstrap.option(ChannelOption.SO_BACKLOG, 1024);
 			bootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
 
-			ChannelFuture future = bootstrap.bind(ip, port).sync();
-			log.info("Server started");
+			ChannelFuture future = bootstrap.bind(serverIp, serverPort).sync();
 
 			registerServices();
+
+			log.info("Server started");
 
 			future.channel().closeFuture().sync();
 		} catch (InterruptedException e) {
@@ -110,10 +108,10 @@ public class RPCServer implements ApplicationContextAware, InitializingBean {
 	}
 
 	private void registerServices() {
-		if (serviceRegistry != null && serviceAddress != null) {
+		if (serviceRegistry != null) {
 			for (String interfaceName : handlerMap.keySet()) {
-				serviceRegistry.register(interfaceName, serviceAddress.toString());
-				log.info("Registering service: {} with address: {}", interfaceName, serviceAddress);
+				serviceRegistry.register(interfaceName, new ServiceAddress(serverIp, serverPort));
+				log.info("Registering service: {} with address: {}:{}", interfaceName, serverIp, serverPort);
 			}
 		}
 	}

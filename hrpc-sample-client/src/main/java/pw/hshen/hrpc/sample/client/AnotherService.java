@@ -4,9 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pw.hshen.hrpc.sample.spi.HelloService;
-import pw.hshen.hrpc.sample.spi_2.HelloService2;
-
-import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * @author hongbin
@@ -18,14 +15,15 @@ public class AnotherService {
 	@Autowired
 	HelloService helloService;
 
-	@Autowired
-	HelloService2 helloService2;
-
-	public void callHelloService() throws Exception {
-		log.info("Result of callHelloService: {}", helloService.hello("world"));
-
-		log.info("Result of callHelloService: {}", helloService.hello("world"));
-
-		log.info("Result of callHelloService2: {}", helloService2.hello("world"));
+	public void callHelloService() {
+		while (true) {
+			try {
+				log.info("call hello service");
+				log.debug("Result of callHelloService: {}", helloService.hello("world"));
+				Thread.sleep(1000);
+			} catch (Exception e) {
+				log.error("error: ", e);
+			}
+		}
 	}
 }

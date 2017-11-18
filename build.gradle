@@ -50,7 +50,7 @@ subprojects {
                 dependency 'com.google.guava:guava:11.0.2'
                 dependency 'org.apache.zookeeper:zookeeper:3.4.0'
                 dependency 'com.101tec:zkclient:0.4'
-                dependency 'com.ecwid.consul:consul-api:1.1.10'
+                dependency 'com.ecwid.consul:consul-api:1.2.4'
             }
             resolutionStrategy {
                 cacheChangingModulesFor 0, 'seconds'

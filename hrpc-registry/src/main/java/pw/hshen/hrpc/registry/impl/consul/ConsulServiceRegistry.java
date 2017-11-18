@@ -5,6 +5,7 @@ import com.ecwid.consul.v1.ConsulRawClient;
 import com.ecwid.consul.v1.agent.model.NewService;
 import org.apache.commons.codec.digest.DigestUtils;
 import pw.hshen.hrpc.registry.ServiceRegistry;
+import pw.hshen.hrpc.registry.model.ServiceAddress;
 
 import java.util.ArrayList;
 
@@ -23,14 +24,18 @@ public class ConsulServiceRegistry implements ServiceRegistry {
 	}
 
 	@Override
-	public void register(String serviceName, String serviceAddress) {
+	public void register(String serviceName, ServiceAddress serviceAddress) {
 		NewService newService = new NewService();
 		newService.setId(generateNewIdForService(serviceName));
 		newService.setName(serviceName);
 		newService.setTags(new ArrayList<>());
-		String[] address = serviceAddress.split(":");
-		newService.setAddress(address[0]);
-		newService.setPort(Integer.valueOf(address[1]));
+		newService.setAddress(serviceAddress.getIp());
+		newService.setPort(serviceAddress.getPort());
+
+		NewService.Check check = new NewService.Check();
+		check.setTcp(serviceAddress.toString());
+		check.setInterval("1s");
+		newService.setCheck(check);
 		consulClient.agentServiceRegister(newService);
 	}
 

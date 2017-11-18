@@ -8,8 +8,13 @@ import pw.hshen.hrpc.client.annotation.EnableRPCClients;
 public class HelloClient {
 
 	public static void main(String[] args) throws Exception {
-		ApplicationContext context = new ClassPathXmlApplicationContext("spring.xml");
-		AnotherService anotherService = context.getBean(AnotherService.class);
-		anotherService.callHelloService();
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				ApplicationContext context = new ClassPathXmlApplicationContext("spring.xml");
+				AnotherService anotherService = context.getBean(AnotherService.class);
+				anotherService.callHelloService();
+			}
+		}).start();
 	}
 }

@@ -16,7 +16,8 @@
     </bean>
 
     <bean id="rpcServer" class="pw.hshen.hrpc.server.RPCServer">
-        <constructor-arg name="serviceAddress" value="${rpc.service_address}"/>
+        <constructor-arg name="serverIp" value="${rpc.server_ip}"/>
+		<constructor-arg name="serverPort" value="${rpc.server_port}"/>
         <constructor-arg name="serviceRegistry" ref="serviceRegistry"/>
     </bean>
 

@@ -2,6 +2,8 @@ package pw.hshen.hrpc.client;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -64,6 +66,13 @@ public class ChannelManager {
 				channel = bootstrap.connect(inetSocketAddress.getHostName(), inetSocketAddress.getPort()).sync()
 						.channel();
 				registerChannel(inetSocketAddress, channel);
+
+				channel.closeFuture().addListener(new ChannelFutureListener() {
+					@Override
+					public void operationComplete(ChannelFuture future) throws Exception {
+						removeChannel(inetSocketAddress);
+					}
+				});
 			} catch (Exception e) {
 				log.warn("Fail to get channel for address: {}", inetSocketAddress);
 			}
@@ -71,8 +80,12 @@ public class ChannelManager {
 		return channel;
 	}
 
-	public void registerChannel(InetSocketAddress inetSocketAddress, Channel channel) {
+	private void registerChannel(InetSocketAddress inetSocketAddress, Channel channel) {
 		channels.put(inetSocketAddress, channel);
+	}
+
+	private void removeChannel(InetSocketAddress inetSocketAddress) {
+		channels.remove(inetSocketAddress);
 	}
 
 	private class RPCChannelInitializer extends ChannelInitializer<SocketChannel> {
@@ -90,7 +103,6 @@ public class ChannelManager {
 
 		@Override
 		public void channelRead0(ChannelHandlerContext ctx, RPCResponse response) throws Exception {
-			log.debug("Get response: {}", response);
 			ResponseFutureManager.getInstance().futureDone(response);
 		}
 

@@ -18,6 +18,7 @@ import java.lang.reflect.Proxy;
 import java.net.InetSocketAddress;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * FactoryBean for service proxy
@@ -100,12 +101,10 @@ public class ProxyFactoryBean implements FactoryBean<Object> {
 	}
 
 	private RPCResponse sendRequest(Channel channel, RPCRequest request) {
-		log.debug("Send request, channel: {}, request: {}", channel, request);
 		CountDownLatch latch = new CountDownLatch(1);
 		RPCResponseFuture rpcResponseFuture = new RPCResponseFuture(request.getRequestId());
 		ResponseFutureManager.getInstance().registerFuture(rpcResponseFuture);
 		channel.writeAndFlush(request).addListener((ChannelFutureListener) future -> {
-			log.debug("Request sent.");
 			latch.countDown();
 		});
 		try {
@@ -115,7 +114,7 @@ public class ProxyFactoryBean implements FactoryBean<Object> {
 		}
 
 		try {
-			return rpcResponseFuture.get();
+			return rpcResponseFuture.get(1, TimeUnit.SECONDS);
 		} catch (Exception e) {
 			log.warn("Exception:", e);
 			return null;

@@ -6,6 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * Annotation to specify the services we would call
+ *
  * @author hongbin
  * Created on 22/10/2017
  */

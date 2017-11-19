@@ -92,7 +92,7 @@ public class ProxyFactoryBean implements FactoryBean<Object> {
 			log.debug("Get address: {} for service: {}", serviceAddress, targetServiceName);
 		}
 		if (StringUtils.isEmpty(serviceAddress)) {
-			throw new RuntimeException("server address is empty");
+			throw new RuntimeException(String.format("Address of target service %s is empty", targetServiceName));
 		}
 		String[] array = StringUtils.split(serviceAddress, ":");
 		String host = array[0];
@@ -114,6 +114,7 @@ public class ProxyFactoryBean implements FactoryBean<Object> {
 		}
 
 		try {
+			// TODO: make timeout configurable
 			return rpcResponseFuture.get(1, TimeUnit.SECONDS);
 		} catch (Exception e) {
 			log.warn("Exception:", e);

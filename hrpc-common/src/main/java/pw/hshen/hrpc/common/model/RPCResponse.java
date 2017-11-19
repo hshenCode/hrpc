@@ -1,8 +1,6 @@
 package pw.hshen.hrpc.common.model;
 
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * @author hongbin

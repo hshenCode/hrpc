@@ -11,11 +11,9 @@ import pw.hshen.hrpc.loadbalancer.LoadBalancer;
 import pw.hshen.hrpc.loadbalancer.impl.RandomLoadBalancer;
 import pw.hshen.hrpc.registry.ServiceDiscovery;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 /**
@@ -30,6 +28,7 @@ public class ConsulServiceDiscovery implements ServiceDiscovery {
 	Map<String, LoadBalancer<ServiceAddress>> loadBalancerMap = new ConcurrentHashMap<>();
 
 	public ConsulServiceDiscovery(String consulAddress) {
+		log.debug("Use consul to do service discovery: {}", consulAddress);
 		String[] address = consulAddress.split(":");
 		ConsulRawClient rawClient = new ConsulRawClient(address[0], Integer.valueOf(address[1]));
 		consulClient = new ConsulClient(rawClient);
@@ -46,7 +45,13 @@ public class ConsulServiceDiscovery implements ServiceDiscovery {
 			// Watch consul
 			longPolling(serviceName);
 		}
-		return loadBalancerMap.get(serviceName).next().toString();
+
+		ServiceAddress address = loadBalancerMap.get(serviceName).next();
+		if (address == null) {
+			throw new RuntimeException(String.format("No service instance for %s", serviceName));
+		}
+
+		return address.toString();
 	}
 
 	private void longPolling(String serviceName){
@@ -77,6 +82,7 @@ public class ConsulServiceDiscovery implements ServiceDiscovery {
 	}
 
 	private LoadBalancer buildLoadBalancer(List<HealthService> healthServices) {
+		// TODO: make load balancer type configurable
 		return new RandomLoadBalancer(healthServices.stream()
 				.map(healthService -> {
 					HealthService.Service service =healthService.getService();

@@ -12,6 +12,8 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 /**
+ * Handle the RPC request
+ *
  * @author hongbin
  * Created on 21/10/2017
  */

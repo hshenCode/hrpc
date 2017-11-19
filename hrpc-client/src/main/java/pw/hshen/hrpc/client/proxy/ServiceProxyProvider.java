@@ -37,7 +37,7 @@ import java.util.Set;
  */
 @Slf4j
 @RequiredArgsConstructor
-public class ServiceProxyProvider extends PropertySourcesPlaceholderConfigurer implements BeanDefinitionRegistryPostProcessor {
+public class ServiceProxyProvider implements BeanDefinitionRegistryPostProcessor {
 
 	@NonNull
 	private ServiceDiscovery serviceDiscovery;
@@ -127,6 +127,5 @@ public class ServiceProxyProvider extends PropertySourcesPlaceholderConfigurer i
 
 	@Override
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-
 	}
 }

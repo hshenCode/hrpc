@@ -22,6 +22,9 @@ public class RandomLoadBalancer implements LoadBalancer<ServiceAddress>{
 
 	@Override
 	public ServiceAddress next() {
+		if (serviceAddresses.size() == 0) {
+			return null;
+		}
 		return serviceAddresses.get(ThreadLocalRandom.current().nextInt(serviceAddresses.size()));
 	}
 }

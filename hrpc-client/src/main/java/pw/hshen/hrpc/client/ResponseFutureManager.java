@@ -34,6 +34,7 @@ public class ResponseFutureManager {
 	}
 
 	public void futureDone(RPCResponse response) {
+		// Mark the responseFuture as done
 		rpcFutureMap.remove(response.getRequestId()).done(response);
 	}
 }

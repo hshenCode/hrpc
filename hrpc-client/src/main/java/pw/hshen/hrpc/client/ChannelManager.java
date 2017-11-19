@@ -67,12 +67,8 @@ public class ChannelManager {
 						.channel();
 				registerChannel(inetSocketAddress, channel);
 
-				channel.closeFuture().addListener(new ChannelFutureListener() {
-					@Override
-					public void operationComplete(ChannelFuture future) throws Exception {
-						removeChannel(inetSocketAddress);
-					}
-				});
+				// Remove the channel for map when it's closed
+				channel.closeFuture().addListener((ChannelFutureListener) future -> removeChannel(inetSocketAddress));
 			} catch (Exception e) {
 				log.warn("Fail to get channel for address: {}", inetSocketAddress);
 			}

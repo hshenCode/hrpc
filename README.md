@@ -8,6 +8,8 @@ Some articles in Chinese:
 - [如何写一个RPC框架（三）：服务注册与服务发现](http://blog.csdn.net/u012422829/article/details/78420091)
 - [如何写一个RPC框架（四）：网络通信之客户端篇](http://blog.csdn.net/u012422829/article/details/78511778)
 - [如何写一个RPC框架（五）：服务器端实现](http://blog.csdn.net/u012422829/article/details/78526165)
+- [如何写一个RPC框架（六）：负载均衡](http://blog.csdn.net/u012422829/article/details/78574043)
+
 
 ## Usage
 Please refer to:

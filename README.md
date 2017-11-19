@@ -10,7 +10,7 @@ Some articles in Chinese:
 - [如何写一个RPC框架（五）：服务器端实现](http://blog.csdn.net/u012422829/article/details/78526165)
 - [如何写一个RPC框架（六）：负载均衡](http://blog.csdn.net/u012422829/article/details/78574043)
 
-If the links above don't work, see the docs folder: [docs](/tree/master/docs)
+If the links above don't work, see the docs folder: [docs](/docs)
 
 ## Usage
 Please refer to:
